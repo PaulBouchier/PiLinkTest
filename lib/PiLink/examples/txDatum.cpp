@@ -5,7 +5,7 @@
 
 HardwareSerial serial1(1);    // esp32 uart 1
 
-SerialTransfer myTransfer;
+SerialTransfer piXfer;
 
 double y;
 
@@ -15,7 +15,7 @@ void setup()
   Serial.begin(115200);
   serial1.begin(115200);
   delay(2000); // let serial start
-  myTransfer.begin(serial1);
+  piXfer.begin(serial1);
 
   y = 4.5;
   Serial.println("SerialTransferTest");
@@ -24,6 +24,6 @@ void setup()
 
 void loop()
 {
-  myTransfer.sendDatum(y);
+  piXfer.sendDatum(y);
   delay(500);
 }

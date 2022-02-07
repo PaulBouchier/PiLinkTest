@@ -1,86 +1,54 @@
 #include <Arduino.h>
-#include <HardwareSerial.h>
-#include <Wire.h>
-#include <SerialTransfer.h>
+#include <PiLink.h>
 
-HardwareSerial serial1(1);    // esp32 uart 1
+PiLink piLink;
 
-SerialTransfer myTransfer;
 
-void handleRxMsg();
-
-/////////////////////////////////////////////////////////////////// Callbacks
-void echo_cb()
-{
-  Serial.println("In echo_cb");
-  Serial.print("packet bytesRead: ");
-  Serial.print(myTransfer.packet.bytesRead);
-  Serial.print(" SerialTransfer bytesRead: ");
-  Serial.print(myTransfer.bytesRead);
-  Serial.print(" packet status ");
-  Serial.println(myTransfer.packet.status);
-  handleRxMsg();
-}
-
-void list_cb()
-{
-  Serial.println("In list_cb");
-  handleRxMsg();
-}
-
-// supplied as a reference - persistent allocation required
-const functionPtr callbackArr[] = { echo_cb, list_cb };
 ///////////////////////////////////////////////////////////////////
 
 void handleRxMsg()
 {
-    uint8_t rxPacketId = myTransfer.currentPacketID();
+    uint8_t rxPacketId = piXfer.currentPacketID();
 
     Serial.print("Got a message ID: ");
     Serial.print(rxPacketId);
-    Serial.print(" sending back msg len - one of the following two values: ");
-    Serial.print(myTransfer.bytesRead);
-    Serial.print(" ");
-    Serial.println(myTransfer.packet.bytesRead);
+    Serial.print(" sending back msg len: ");
+    Serial.println(piXfer.packet.bytesRead);
 
-    // send all received data back to Python
-    //for(uint16_t i=0; i < myTransfer.bytesRead; i++)
-    //  myTransfer.packet.txBuff[i] = myTransfer.packet.rxBuff[i];
-
-    for(uint16_t i=0; i < myTransfer.packet.bytesRead; i++)
-      myTransfer.packet.txBuff[i] = myTransfer.packet.rxBuff[i];
+    for(uint16_t i=0; i < piXfer.packet.bytesRead; i++)
+      piXfer.packet.txBuff[i] = piXfer.packet.rxBuff[i];
     
-    //myTransfer.sendData(myTransfer.bytesRead, rxPacketId);
-    myTransfer.sendData(myTransfer.packet.bytesRead, rxPacketId);
+    piXfer.sendData(piXfer.packet.bytesRead, rxPacketId);
 }
 
 void setup()
 {
+  bool isok = true;
+
   Serial.begin(115200);
-  serial1.begin(115200);
   delay(2000); // let serial start
 
-  ///////////////////////////////////////////////////////////////// Config Parameters
-  configST myConfig;
-  myConfig.debug        = false;
-  myConfig.callbacks    = callbackArr;
-  myConfig.callbacksLen = sizeof(callbackArr) / sizeof(functionPtr);
-  /////////////////////////////////////////////////////////////////
-  
-  myTransfer.begin(serial1, myConfig);
-  //myTransfer.begin(serial1);
+  Log.begin(LOG_LEVEL_INFO, &Serial);
+  Log.infoln("--- PiXfer Test ---");
 
-  Serial.println("SerialTransfer Loopback Test");
+  isok = piLink.init();
+  if (!isok)
+  {
+    while(true)   // hang here forever if initialization fails
+    {
+      Log.fatalln("piXfer init() failed");
+      delay(10000);
+    }
+  }
+
 }
 
 
 void loop()
 {
-  if (myTransfer.tick())
-  //if (myTransfer.available() > 0)
+  if (piXfer.tick())
   {
-    Serial.println("myTransfer.tick() received a message");
-    //handleRxMsg();
+    Serial.println("piXfer.tick() received a message");
   }
   delay(500);
 }
