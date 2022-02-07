@@ -1,24 +1,17 @@
 #include <Arduino.h>
 #include <PiLink.h>
+#include <ArduinoLog.h>
 
+// Globals
 PiLink piLink;
 
+// Local object instantiations
+static TaskHandle_t piLinkTaskHandle = NULL;
 
-///////////////////////////////////////////////////////////////////
-
-void handleRxMsg()
+// @brief static function to call run() method
+void static startPiLinkTask(void* params)
 {
-    uint8_t rxPacketId = piXfer.currentPacketID();
-
-    Serial.print("Got a message ID: ");
-    Serial.print(rxPacketId);
-    Serial.print(" sending back msg len: ");
-    Serial.println(piXfer.packet.bytesRead);
-
-    for(uint16_t i=0; i < piXfer.packet.bytesRead; i++)
-      piXfer.packet.txBuff[i] = piXfer.packet.rxBuff[i];
-    
-    piXfer.sendData(piXfer.packet.bytesRead, rxPacketId);
+  piLink.run(params);
 }
 
 void setup()
@@ -31,6 +24,7 @@ void setup()
   Log.begin(LOG_LEVEL_INFO, &Serial);
   Log.infoln("--- PiXfer Test ---");
 
+  // initialize piLink
   isok = piLink.init();
   if (!isok)
   {
@@ -41,14 +35,26 @@ void setup()
     }
   }
 
+  // create piLink task
+  BaseType_t rv = xTaskCreate(
+                    startPiLinkTask,
+                    "PiLink Task",
+                    2048,
+                    NULL,
+                    1,
+                    &piLinkTaskHandle);
+  if (rv != pdTRUE)
+  {
+    while(true)   // hang here forever if task creation failed
+    {
+      Log.fatalln("Failed to create piLink task");
+      vTaskDelay(10000);   // periodically print the failed message
+    }
+  }
 }
 
 
 void loop()
 {
-  if (piXfer.tick())
-  {
-    Serial.println("piXfer.tick() received a message");
-  }
   delay(500);
 }

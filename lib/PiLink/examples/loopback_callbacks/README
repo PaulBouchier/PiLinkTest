@@ -1,0 +1,5 @@
+This directory contains the last working version of a test program (python/linux side + Arduino side)
+that loops back messages from python to Arduino to python using SerialTransfer.
+Arduino callbacks are invoked that loop the data back to
+python, where callbacks are invoked that receive the loopback data.
+Sent and received data are compared.

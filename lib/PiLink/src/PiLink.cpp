@@ -1,9 +1,10 @@
 #include <PiLink.h>
+#include <ArduinoLog.h>
 
 /////////////////////////////////////////////////////////////////// Callbacks
-void echo_cb()
+void ping_cb()
 {
-  Serial.println("In echo_cb");
+  Serial.println("In ping_cb");
 }
 
 void list_cb()
@@ -12,14 +13,16 @@ void list_cb()
 }
 
 // supplied as a reference - persistent allocation required
-const functionPtr callbackArr[] = { echo_cb, list_cb };
+const functionPtr callbackArr[] = { ping_cb, list_cb };
 
-PiLink::PiLink() {}
+PiLink::PiLink() {
+  rxPing_ = RxPing(piLink_);
+}
 
 bool
 PiLink::init()
 {
-  bool isok = True;
+  bool isok = true;
   serial1.begin(115200);
 
   //////////////// SerialTransfer Config Parameters ///////////////
@@ -34,7 +37,16 @@ PiLink::init()
 }
 
 void
-PiLink::run()
+PiLink::run(void* params)
 {
+  Log.infoln("Running PiLinkTask");
 
+  while(true)
+  {
+    if (piXfer.tick())
+    {
+      Log.traceln("piXfer.tick() received a message");
+    }
+    vTaskDelay(10);
+  }
 }
