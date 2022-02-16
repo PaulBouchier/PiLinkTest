@@ -5,11 +5,12 @@
 #include <Wire.h>
 #include <SerialTransfer.h>
 #include <messages/RxPing.h>
+#include <messages/TxLog.h>
 
 class PiLink
 {
 public:
-  PiLink();
+  PiLink(HardwareSerial& linkSerial);
 
   // @brief initialize this object
   // @return True for success, False otherwise
@@ -18,11 +19,10 @@ public:
   // @brief entry point for the PiLink task
   void run(void* params);
 
+  SerialTransfer piXfer_;                         // SerialTransfer object for communicating with Pi
+
 private:
-HardwareSerial serial1 = HardwareSerial(1);     // esp32 uart 1
-SerialTransfer piXfer;                          // SerialTransfer object for communicating with Pi
+  HardwareSerial& linkSerial_;
 
-// messages
-RxPing rxPing_;
-
+  // private messages
 };

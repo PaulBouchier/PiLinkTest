@@ -2,6 +2,10 @@
 
 #include <Arduino.h>
 #include <SerialTransfer.h>
+#include <PiLink.h>
+#include <messages/TxPong.h>
+
+extern TxPong txPong;
 
 class RxPing
 {
@@ -10,15 +14,19 @@ public:
     : piXfer_(piXfer)
   {}
 
-  uint8_t getPingType()
+  void handlePing()
   {
-    int recSize = piXfer_(pingType_, 1);
-    Serial.print("received ping type ");
-    Serial.println(pingType_);
+    uint16_t recSize = piXfer_.rxObj(pingType_);
+    if (recSize != 1)
+    {
+      Log.errorln("Incorrect # of bytes in RxPing: %d", recSize);
+    }
+    txPong.post(pingType_);
   }
 
 private:
-  SerialTransfer piXfer_;
+  SerialTransfer& piXfer_;
   uint8_t pingType_;         // flavors supported: 0 = return timestamp in pong
+  
 };
 

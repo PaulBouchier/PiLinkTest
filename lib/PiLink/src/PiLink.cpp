@@ -1,29 +1,30 @@
-#include <PiLink.h>
 #include <ArduinoLog.h>
+#include <PiLink.h>
+
+extern SerialTransfer piXfer_;
+extern PiLink piLink;
+extern RxPing rxPing;
+extern TxLog txLog;
 
 /////////////////////////////////////////////////////////////////// Callbacks
 void ping_cb()
 {
-  Serial.println("In ping_cb");
-}
-
-void list_cb()
-{
-  Serial.println("In list_cb");
+  rxPing.handlePing();
 }
 
 // supplied as a reference - persistent allocation required
-const functionPtr callbackArr[] = { ping_cb, list_cb };
+const functionPtr callbackArr[] = { ping_cb };
 
-PiLink::PiLink() {
-  rxPing_ = RxPing(piLink_);
+PiLink::PiLink(HardwareSerial& linkSerial) 
+  : linkSerial_(linkSerial)
+{
 }
 
 bool
 PiLink::init()
 {
   bool isok = true;
-  serial1.begin(115200);
+  linkSerial_.begin(115200);
 
   //////////////// SerialTransfer Config Parameters ///////////////
   configST myConfig;
@@ -31,7 +32,7 @@ PiLink::init()
   myConfig.callbacks    = callbackArr;
   myConfig.callbacksLen = sizeof(callbackArr) / sizeof(functionPtr);
 
-  piXfer.begin(serial1, myConfig);
+  piXfer_.begin(linkSerial_, myConfig);
 
   return isok;
 }
@@ -39,14 +40,14 @@ PiLink::init()
 void
 PiLink::run(void* params)
 {
-  Log.infoln("Running PiLinkTask");
-
+  // Loop forever checking for received messages and messages posted for sending
   while(true)
   {
-    if (piXfer.tick())
-    {
-      Log.traceln("piXfer.tick() received a message");
-    }
+    txPong.sendPosted();
+    piXfer_.tick();
+    txLog.sendPosted();
+    piXfer_.tick();
+
     vTaskDelay(10);
   }
 }
