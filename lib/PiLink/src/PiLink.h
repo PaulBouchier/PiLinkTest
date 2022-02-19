@@ -6,6 +6,7 @@
 #include <SerialTransfer.h>
 #include <messages/RxPing.h>
 #include <messages/TxLog.h>
+#include <messages/RxDriveMotorsRqst.h>
 
 class PiLink
 {

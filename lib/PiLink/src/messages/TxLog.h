@@ -30,8 +30,8 @@ public:
 
     bool isok = true;
     uint16_t sendSize = 0;
-    sendSize += piXfer_.txObj(tickCount_);
-    sendSize += piXfer_.txObj(*buffp_, sendSize, logLength_);
+    sendSize = piXfer_.txObj(tickCount_);
+    sendSize = piXfer_.txObj(*buffp_, sendSize, logLength_);
     uint8_t sentSize = piXfer_.sendData(sendSize, pktIdLog);
     logTxPosted_ = false;
     if (sentSize != sendSize)

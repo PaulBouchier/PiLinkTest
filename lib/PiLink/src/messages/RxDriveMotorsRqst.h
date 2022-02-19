@@ -5,6 +5,7 @@
 #include <PiLink.h>
 #include <RL500CommsTask.h>
 
+extern RL500CommsTask rl500CommsTask;
 
 class RxDriveMotorsRqst
 {
@@ -21,7 +22,8 @@ public:
     {
       Log.errorln("Incorrect # of bytes received in RxDriveMotorsRqst: %d", recSize);
     }
-    Log.traceln("received motors drive rqst: left %d right %d", leftDrivePct_, rightDrivePct_);
+    Log.infoln("received motors drive rqst: left %d right %d", leftDrivePct_, rightDrivePct_);
+    rl500CommsTask.setDrive(leftDrivePct_, rightDrivePct_);
   }
 
 private:

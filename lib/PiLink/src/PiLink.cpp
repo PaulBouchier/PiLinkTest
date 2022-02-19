@@ -3,18 +3,18 @@
 
 extern SerialTransfer piXfer_;
 extern PiLink piLink;
-extern RxPing rxPing;
 extern TxLog txLog;
 
-/////////////////////////////////////////////////////////////////// Callbacks
-void ping_cb()
-{
-  rxPing.handlePing();
-}
+// Callback Handlers
+extern RxPing rxPing;
+extern RxDriveMotorsRqst rxDriveMotorsRqst;
 
-// supplied as a reference - persistent allocation required
-const functionPtr callbackArr[] = { ping_cb };
+void ping_cb() { rxPing.handlePing(); }
+void driveMotors_cb() { rxDriveMotorsRqst.handleDriveMotorsRqst(); }
 
+const functionPtr callbackArr[] = { ping_cb, driveMotors_cb };
+
+// PiLink implementation
 PiLink::PiLink(HardwareSerial& linkSerial) 
   : linkSerial_(linkSerial)
 {
