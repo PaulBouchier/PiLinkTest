@@ -5,6 +5,9 @@ extern SerialTransfer piXfer_;
 extern PiLink piLink;
 extern TxLog txLog;
 
+// static function to call run() method to start PiLink task
+void static startPiLinkTask(void* params) { piLink.run(params); }
+
 // Callback Handlers
 extern RxPing rxPing;
 extern RxDriveMotorsRqst rxDriveMotorsRqst;
@@ -21,18 +24,36 @@ PiLink::PiLink(HardwareSerial& linkSerial)
 }
 
 bool
-PiLink::init()
+PiLink::init(Stream* logStream, int logLevel)
 {
   bool isok = true;
+  linkLog_.begin(logLevel, logStream);
+  linkLog_.infoln("PiLink::init()");
+
   linkSerial_.begin(115200);
 
-  //////////////// SerialTransfer Config Parameters ///////////////
+  // SerialTransfer Config Parameters
   configST myConfig;
   myConfig.debug        = true;
   myConfig.callbacks    = callbackArr;
   myConfig.callbacksLen = sizeof(callbackArr) / sizeof(functionPtr);
 
   piXfer_.begin(linkSerial_, myConfig);
+
+  // create piLink task
+  BaseType_t rv = xTaskCreate(
+                              startPiLinkTask,
+                              "PiLink Task",
+                              2048,
+                              NULL,
+                              1,
+                              &piLinkTaskHandle_);
+  while (rv != pdTRUE)
+  {
+    linkLog_.fatalln("Failed to create piLink task; stopped");
+    Serial.println("Failed to create piLink task; stopped");
+    delay(2000);
+  }
 
   return isok;
 }

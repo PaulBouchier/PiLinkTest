@@ -2,10 +2,10 @@
 
 #include <Arduino.h>
 #include <SerialTransfer.h>
+#include "../../../src/PiLinkMediator.h"
 #include <PiLink.h>
-#include <RL500CommsTask.h>
 
-extern RL500CommsTask rl500CommsTask;
+class Mediator;
 
 class RxDriveMotorsRqst
 {
@@ -14,22 +14,14 @@ public:
     : piXfer_(piXfer)
   {}
 
-  void handleDriveMotorsRqst()
-  {
-    uint16_t recSize = piXfer_.rxObj(leftDrivePct_);
-    recSize += piXfer_.rxObj(rightDrivePct_, recSize);
-    if (recSize != 2)
-    {
-      Log.errorln("Incorrect # of bytes received in RxDriveMotorsRqst: %d", recSize);
-    }
-    Log.infoln("received motors drive rqst: left %d right %d", leftDrivePct_, rightDrivePct_);
-    rl500CommsTask.setDrive(leftDrivePct_, rightDrivePct_);
-  }
+  void handleDriveMotorsRqst();
+  void setMediator(Mediator* mediator);
 
 private:
   SerialTransfer& piXfer_;
   uint8_t leftDrivePct_;         // drive percent request
   uint8_t rightDrivePct_;        // drive percent request
   
+  Mediator* mediator_ = NULL;
 };
 
