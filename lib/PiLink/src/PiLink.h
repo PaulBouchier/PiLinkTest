@@ -16,18 +16,20 @@ public:
   PiLink(HardwareSerial& linkSerial);
 
   // @brief initialize this object
-  // @return True for success, False otherwise
-  bool init(Stream* logStream, int logLevel);
+  // @return True for success, Hangs in the funtion otherwise
+  bool init(int logLevel, Stream* logStream=NULL);
 
   // @brief entry point for the PiLink task
   void run(void* params);
 
   SerialTransfer piXfer_;    // SerialTransfer object for communicating with Pi
   Logging linkLog_;
+  void setMediator(Mediator* mediator) { mediator_ = mediator; }
 
 private:
   HardwareSerial& linkSerial_;
   TaskHandle_t piLinkTaskHandle_ = NULL;
+  Mediator* mediator_ = NULL;
 
   // private messages
 };

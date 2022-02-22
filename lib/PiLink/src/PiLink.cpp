@@ -1,9 +1,27 @@
 #include <ArduinoLog.h>
 #include <PiLink.h>
+#include <LogStream.h>
 
 extern SerialTransfer piXfer_;
 extern PiLink piLink;
 extern TxLog txLog;
+extern TxOdometry txOdometry;
+
+// Prefix print function for logs from this object
+static void printPrefix(Print* logOutput, int logLevel)
+{
+  switch(logLevel)
+  {
+    default:
+    case 0: logOutput->print("S: link: "); break;
+    case 1: logOutput->print("F: link: "); break;
+    case 2: logOutput->print("E: link: "); break;
+    case 3: logOutput->print("W: link: "); break;
+    case 4: logOutput->print("I: link: "); break;
+    case 5: logOutput->print("T: link: "); break;
+    case 6: logOutput->print("V: link: "); break;
+  }
+}
 
 // static function to call run() method to start PiLink task
 void static startPiLinkTask(void* params) { piLink.run(params); }
@@ -24,13 +42,29 @@ PiLink::PiLink(HardwareSerial& linkSerial)
 }
 
 bool
-PiLink::init(Stream* logStream, int logLevel)
+PiLink::init(int logLevel, Stream* stream_p)
 {
   bool isok = true;
-  linkLog_.begin(logLevel, logStream);
-  linkLog_.infoln("PiLink::init()");
 
   linkSerial_.begin(115200);
+
+  // Start logger
+  if (stream_p == NULL)
+  {  
+    // No logStream provided, use logStream
+    LogStream* logStream_p = new LogStream();
+    logStream_p->setMediator(mediator_);
+    //linkLog_.setPrefix("PiLink: ");
+    linkLog_.begin(logLevel, logStream_p);
+  }
+  else
+  {
+    linkLog_.begin(logLevel, stream_p);
+  }
+  linkLog_.setPrefix(printPrefix);
+  linkLog_.setShowLevel(false);
+
+  linkLog_.infoln("PiLink::init()");
 
   // SerialTransfer Config Parameters
   configST myConfig;
@@ -67,6 +101,8 @@ PiLink::run(void* params)
     txPong.sendPosted();
     piXfer_.tick();
     txLog.sendPosted();
+    piXfer_.tick();
+    txOdometry.sendPosted();
     piXfer_.tick();
 
     vTaskDelay(10);

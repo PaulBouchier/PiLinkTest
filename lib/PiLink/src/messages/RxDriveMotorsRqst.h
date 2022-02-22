@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <SerialTransfer.h>
+#include <Mediator.h>
 #include "../../../src/PiLinkMediator.h"
 #include <PiLink.h>
 
@@ -15,12 +16,12 @@ public:
   {}
 
   void handleDriveMotorsRqst();
-  void setMediator(Mediator* mediator);
+  void setMediator(Mediator* mediator) { mediator_ = mediator; }
 
 private:
   SerialTransfer& piXfer_;
-  uint8_t leftDrivePct_;         // drive percent request
-  uint8_t rightDrivePct_;        // drive percent request
+  int8_t leftDrivePct_;         // drive percent request
+  int8_t rightDrivePct_;        // drive percent request
   
   Mediator* mediator_ = NULL;
 };

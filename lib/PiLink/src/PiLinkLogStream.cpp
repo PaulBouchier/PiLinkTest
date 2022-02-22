@@ -5,7 +5,7 @@ extern TxLog txLog;
 
 LogStream::LogStream()
 {
-  buff_ = new char[128];
+  buff_ = new char[bufSize];
   buffp_ = buff_;
 }
 
@@ -19,28 +19,10 @@ LogStream::write(uint8_t c)
     buffp_ = buff_;
     logLength_ = 0;
   }
-  else
+  else if (logLength_ < bufSize - 1)
   {
     buffp_++;
     logLength_++;
   }
   return 1;
-}
-
-int
-LogStream::available()
-{
-  return 0;
-}
-
-int
-LogStream::read()
-{
-  return 0;
-}
-
-int
-LogStream::peek()
-{
-  return 0;
 }

@@ -14,6 +14,7 @@ PiLinkMediator::PiLinkMediator(
   , txOdometry_(txOdometry)
   , rxDriveMotorsRqst_(rxDriveMotorsRqst)
 {
+  piLink.setMediator(this);
   rxDriveMotorsRqst_.setMediator(this);
 }
 

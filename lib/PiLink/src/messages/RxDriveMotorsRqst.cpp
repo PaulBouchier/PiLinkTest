@@ -1,5 +1,7 @@
 #include <messages/RxDriveMotorsRqst.h>
 
+extern PiLink piLink;
+
 void
 RxDriveMotorsRqst::handleDriveMotorsRqst()
 {
@@ -7,15 +9,9 @@ RxDriveMotorsRqst::handleDriveMotorsRqst()
   recSize = piXfer_.rxObj(rightDrivePct_, recSize);
   if (recSize != 2)
   {
-    Log.errorln("Incorrect # of bytes received in RxDriveMotorsRqst: %d", recSize);
+    piLink.linkLog_.errorln("Incorrect # of bytes received in RxDriveMotorsRqst: %d", recSize);
   }
-  Log.infoln("received motors drive rqst: left %d right %d", leftDrivePct_, rightDrivePct_);
+  piLink.linkLog_.infoln("handleDriveMotorsRqst got motors drive rqst: left %d right %d", leftDrivePct_, rightDrivePct_);
   mediator_->setDrive(leftDrivePct_, rightDrivePct_);
-}
-
-void
-RxDriveMotorsRqst::setMediator(Mediator* mediator)
-{
-  mediator_ = mediator;
 }
 
