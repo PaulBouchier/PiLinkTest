@@ -7,8 +7,11 @@
 #include <SerialTransfer.h>
 #include <messages/TxLog.h>
 #include <messages/TxOdometry.h>
+#include <messages/TxPlatformData.h>
 #include <messages/RxDriveMotorsRqst.h>
+#include <messages/RxLogLevel.h>
 #include <messages/RxPing.h>
+#include <messages/RxReboot.h>
 
 class PiLink
 {
@@ -25,6 +28,7 @@ public:
   SerialTransfer piXfer_;    // SerialTransfer object for communicating with Pi
   Logging linkLog_;
   void setMediator(Mediator* mediator) { mediator_ = mediator; }
+  UBaseType_t getStackHighWaterMark() { return uxTaskGetStackHighWaterMark(piLinkTaskHandle_);}
 
 private:
   HardwareSerial& linkSerial_;

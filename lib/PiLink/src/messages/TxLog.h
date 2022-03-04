@@ -4,49 +4,35 @@
 #include <SerialTransfer.h>
 #include <messages/packetIds.h>
 #include <ArduinoLog.h>
+#include <CircularBuffer.h>
 
 class TxLog
 {
 public:
-  TxLog(SerialTransfer& piXfer)
-    : piXfer_(piXfer)
-  {}
+  struct LogEntry {
+    int index;                  // index into the array of buffers at which logMsg is stored
+    int logLength;              // length of this log
+    TickType_t timestamp;       // timestamp of log
+    int seq;                    // sequence # of this logEntry
+  };
+
+  TxLog(SerialTransfer& piXfer, Logging& linkLog);
 
   // @brief Post a request to send a log message over the link
-  // @param log The null-terminated message to send
-  void post(char* logMsg, int logLength)
-  {
-    tickCount_ = xTaskGetTickCount();
-    logLength_ = logLength;
-    buffp_ = logMsg;
-    logTxPosted_ = true;
-  }
+  // @param logMsg The message to send
+  // @param logLength Size of logMsg
+  void post(char* logMsg, int logLength);
 
   // @brief If a request to send a log has been posted, send it
-  bool sendPosted()
-  {
-    if (!logTxPosted_)
-      return true;
-
-    bool isok = true;
-    uint16_t sendSize = 0;
-    sendSize = piXfer_.txObj(tickCount_);
-    sendSize = piXfer_.txObj(*buffp_, sendSize, logLength_);
-    uint8_t sentSize = piXfer_.sendData(sendSize, pktIdLog);
-    logTxPosted_ = false;
-    if (sentSize != sendSize)
-    {
-      Log.errorln("Failed to send correct # of bytes in TxLog");
-      isok = false;
-    }
-    return isok;
-  }
+  bool sendPosted();
 
 private:
+  LogEntry inbound_;                  // LogEntry data to be put into the circular buffer
+  LogEntry outbound_;                 // LogEntry data for logs removed from the circular buffer
+
   SerialTransfer& piXfer_;
-  volatile TickType_t tickCount_;  
-  bool logTxPosted_ = false;
-  char* buffp_;
-  int logLength_;
+  int seq_ = 0;                       // log sequence number
+  SemaphoreHandle_t mutex_;
+  Logging& linkLog_;
 };
 

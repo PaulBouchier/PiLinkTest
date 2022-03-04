@@ -25,7 +25,7 @@ PiLinkMediator::sendLogMsg(char* logMsg, int length)
 }
 
 void
-PiLinkMediator::setDrive(int8_t leftDrivePct, int8_t rightDrivePct)
+PiLinkMediator::setDrive(int32_t seq, float linear_vel, float angular_vel)
 {
-  piLink_.linkLog_.infoln("PiLinkMediator got setDrive left: %d right: %d", leftDrivePct, rightDrivePct);
+  piLink_.linkLog_.traceln("PiLinkMediator got setDrive linear: %F angular: %F", linear_vel, angular_vel);
 }

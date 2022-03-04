@@ -7,19 +7,20 @@
 
 // Define which serial port we'll use for PiLink
 //#define LINK_SERIAL Serial
-HardwareSerial hardwareSerial1 = HardwareSerial(1);
 #define LINK_SERIAL hardwareSerial1
-
-// Globals
+HardwareSerial hardwareSerial1 = HardwareSerial(1);
 PiLink piLink= PiLink( LINK_SERIAL ) ;
 
+// Globals
 // global messages that callers use to send or receive Pi messages
 TxPong txPong = TxPong(piLink.piXfer_);
-TxLog txLog = TxLog(piLink.piXfer_);
-TxOdometry txOdometry = TxOdometry(piLink.piXfer_);
+TxLog txLog = TxLog(piLink.piXfer_, piLink.linkLog_);
+TxOdometry txOdometry = TxOdometry(piLink.piXfer_, piLink.linkLog_);
 
 RxDriveMotorsRqst rxDriveMotorsRqst = RxDriveMotorsRqst(piLink.piXfer_);
+RxLogLevel rxLogLevel = RxLogLevel(piLink.piXfer_, piLink.linkLog_);
 RxPing rxPing = RxPing(piLink.piXfer_);
+RxReboot rxReboot = RxReboot(piLink.piXfer_, piLink.linkLog_);
 
 // Instantiate the mediator
 PiLinkMediator piLinkMediator(
@@ -36,12 +37,12 @@ void setup()
 {
   bool isok = true;
 
-  Serial.begin(115200);
+  //Serial.begin(115200);
   delay(3000); // let serial start
 
   // initialize piLink
   isok = piLink.init(LOG_LEVEL_VERBOSE);
-  //isok = piLink.init(LOG_LEVEL_VERBOSE, &Serial);
+  
   if (!isok)
   {
     Serial.println("piXfer init() failed");

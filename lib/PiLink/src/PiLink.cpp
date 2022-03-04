@@ -2,10 +2,20 @@
 #include <PiLink.h>
 #include <LogStream.h>
 
+// Globals
 extern SerialTransfer piXfer_;
 extern PiLink piLink;
+
+// Transmit messages to be polled for posted send requests
 extern TxLog txLog;
 extern TxOdometry txOdometry;
+extern TxPlatformData txPlatformData;
+
+// Callback handler globals
+extern RxPing rxPing;
+extern RxDriveMotorsRqst rxDriveMotorsRqst;
+extern RxLogLevel rxLogLevel;
+extern RxReboot rxReboot;
 
 // Prefix print function for logs from this object
 static void printPrefix(Print* logOutput, int logLevel)
@@ -26,14 +36,12 @@ static void printPrefix(Print* logOutput, int logLevel)
 // static function to call run() method to start PiLink task
 void static startPiLinkTask(void* params) { piLink.run(params); }
 
-// Callback Handlers
-extern RxPing rxPing;
-extern RxDriveMotorsRqst rxDriveMotorsRqst;
-
+// callback functions and callback table
 void ping_cb() { rxPing.handlePing(); }
 void driveMotors_cb() { rxDriveMotorsRqst.handleDriveMotorsRqst(); }
-
-const functionPtr callbackArr[] = { ping_cb, driveMotors_cb };
+void logLevel_cb() { rxLogLevel.handleLogLevel(); }
+void reboot_cb() { rxReboot.handleReboot(); }
+const functionPtr callbackArr[] = { ping_cb, driveMotors_cb, logLevel_cb, reboot_cb };
 
 // PiLink implementation
 PiLink::PiLink(HardwareSerial& linkSerial) 
@@ -47,6 +55,8 @@ PiLink::init(int logLevel, Stream* stream_p)
   bool isok = true;
 
   linkSerial_.begin(115200);
+  delay(2000);
+  //Serial.println("in PiLing.init()");
 
   // Start logger
   if (stream_p == NULL)
@@ -54,7 +64,7 @@ PiLink::init(int logLevel, Stream* stream_p)
     // No logStream provided, use logStream
     LogStream* logStream_p = new LogStream();
     logStream_p->setMediator(mediator_);
-    //linkLog_.setPrefix("PiLink: ");
+
     linkLog_.begin(logLevel, logStream_p);
   }
   else
@@ -63,8 +73,6 @@ PiLink::init(int logLevel, Stream* stream_p)
   }
   linkLog_.setPrefix(printPrefix);
   linkLog_.setShowLevel(false);
-
-  linkLog_.infoln("PiLink::init()");
 
   // SerialTransfer Config Parameters
   configST myConfig;
@@ -78,7 +86,7 @@ PiLink::init(int logLevel, Stream* stream_p)
   BaseType_t rv = xTaskCreate(
                               startPiLinkTask,
                               "PiLink Task",
-                              2048,
+                              4096,
                               NULL,
                               1,
                               &piLinkTaskHandle_);
@@ -88,7 +96,7 @@ PiLink::init(int logLevel, Stream* stream_p)
     Serial.println("Failed to create piLink task; stopped");
     delay(2000);
   }
-
+  linkLog_.infoln("PiLink finished init");
   return isok;
 }
 
@@ -103,6 +111,8 @@ PiLink::run(void* params)
     txLog.sendPosted();
     piXfer_.tick();
     txOdometry.sendPosted();
+    piXfer_.tick();
+    txPlatformData.sendPosted();
     piXfer_.tick();
 
     vTaskDelay(10);

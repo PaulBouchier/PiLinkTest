@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <SerialTransfer.h>
 #include <Mediator.h>
-#include "../../../src/PiLinkMediator.h"
 #include <PiLink.h>
 
 class Mediator;
@@ -20,9 +19,10 @@ public:
 
 private:
   SerialTransfer& piXfer_;
-  int8_t leftDrivePct_;         // drive percent request
-  int8_t rightDrivePct_;        // drive percent request
-  
   Mediator* mediator_ = NULL;
+
+  int seq_;
+  float linear_vel_;
+  float angular_vel_;
 };
 

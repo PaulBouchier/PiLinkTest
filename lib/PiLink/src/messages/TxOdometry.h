@@ -8,19 +8,20 @@
 class TxOdometry
 {
 public:
-  TxOdometry(SerialTransfer& piXfer)
+  TxOdometry(SerialTransfer& piXfer, Logging& linkLog)
     : piXfer_(piXfer)
+    , linkLog_(linkLog)
   {}
 
   // @brief Post a request to send current odometry data
-  // @param pingType The type of ping received, which may trigger different pongs
+  // @param odom The odometry message
   void post(OdometryMsg odom)
   {
     odom_ = odom;
     odometryTxPosted_ = true;
   }
 
-  // @brief If a request to send a pong has been posted, send it
+  // @brief If a request to send odometry has been posted, send it
   bool sendPosted()
   {
     if (!odometryTxPosted_)
@@ -34,7 +35,7 @@ public:
     if (sentSize != sendSize)
     {
       // Fixme: add logging this error
-      Serial.println("Failed to send correct # of bytes in TxOdometry");
+      linkLog_.errorln("Failed to send correct # of bytes in TxOdometry");
       isok = false;
     }
     return isok;
@@ -45,5 +46,6 @@ private:
   volatile TickType_t tickCount_;  
   bool odometryTxPosted_ = false;
   OdometryMsg odom_;
+  Logging& linkLog_;
 };
 
