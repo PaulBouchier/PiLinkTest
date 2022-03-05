@@ -16,8 +16,9 @@ public:
   void handleReboot()
   {
     linkLog_.infoln("ESP32 REBOOTING in 5 SECONDS");
+    Serial.println("ESP32 REBOOTING in 5 SECONDS");
     delay(5000);
-    // add reboot here
+    ESP.restart();
   }
 
   void setMediator(Mediator* mediator) { mediator_ = mediator; }
