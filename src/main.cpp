@@ -16,7 +16,9 @@ PiLink piLink= PiLink( LINK_SERIAL ) ;
 TxPong txPong = TxPong(piLink.piXfer_);
 TxLog txLog = TxLog(piLink.piXfer_, piLink.linkLog_);
 TxOdometry txOdometry = TxOdometry(piLink.piXfer_, piLink.linkLog_);
+TxPlatformData txPlatformData = TxPlatformData(piLink.piXfer_, piLink.linkLog_);
 
+RxBITMode rxBITMode = RxBITMode(piLink.piXfer_, piLink.linkLog_);
 RxDriveMotorsRqst rxDriveMotorsRqst = RxDriveMotorsRqst(piLink.piXfer_);
 RxLogLevel rxLogLevel = RxLogLevel(piLink.piXfer_, piLink.linkLog_);
 RxPing rxPing = RxPing(piLink.piXfer_);

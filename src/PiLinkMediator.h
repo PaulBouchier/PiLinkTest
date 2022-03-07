@@ -24,6 +24,7 @@ public:
   void publishOdometry(OdometryMsg odom) {}
   void setLogLvl(int32_t pilinkLogLevel, int32_t rl500LogLevel, int32_t odomLogLevel) {}
   void publishPlatformData(PlatformDataMsg platformData) {}
+  void setRL500BITMode() {}
 
 private:
   PiLink& piLink_;

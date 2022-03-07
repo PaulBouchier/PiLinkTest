@@ -34,7 +34,6 @@ public:
     platformDataTxPosted_ = false;
     if (sentSize != sendSize)
     {
-      // Fixme: add logging this error
       linkLog_.errorln("Failed to send correct # of bytes in TxPlatformData");
       isok = false;
     }

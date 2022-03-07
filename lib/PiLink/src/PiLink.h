@@ -5,9 +5,13 @@
 #include <Wire.h>
 #include <ArduinoLog.h>
 #include <SerialTransfer.h>
+
+// Tx & Rx messages
 #include <messages/TxLog.h>
 #include <messages/TxOdometry.h>
 #include <messages/TxPlatformData.h>
+
+#include <messages/RxBITMode.h>
 #include <messages/RxDriveMotorsRqst.h>
 #include <messages/RxLogLevel.h>
 #include <messages/RxPing.h>
