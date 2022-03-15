@@ -12,6 +12,7 @@
 #include <messages/TxPlatformData.h>
 
 #include <messages/RxBITMode.h>
+#include <messages/RxClearOdom.h>
 #include <messages/RxDriveMotorsRqst.h>
 #include <messages/RxLogLevel.h>
 #include <messages/RxPing.h>

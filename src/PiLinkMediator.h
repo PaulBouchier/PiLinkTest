@@ -20,6 +20,7 @@ public:
   void setDrive(int32_t seq, float linear_vel, float angular_vel);
 
   // dummy defs to staisfy Mediator
+  void clearOdometry() {}
   void setWheelDirections(bool leftFwd, bool rightFwd) {}
   void publishOdometry(OdometryMsg odom) {}
   void setLogLvl(int32_t pilinkLogLevel, int32_t rl500LogLevel, int32_t odomLogLevel) {}

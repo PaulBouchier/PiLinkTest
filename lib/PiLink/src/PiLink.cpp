@@ -13,6 +13,7 @@ extern TxPlatformData txPlatformData;
 
 // Callback handler globals
 extern RxBITMode rxBITMode;
+extern RxClearOdom rxClearOdom;
 extern RxPing rxPing;
 extern RxDriveMotorsRqst rxDriveMotorsRqst;
 extern RxLogLevel rxLogLevel;
@@ -38,12 +39,18 @@ static void printPrefix(Print* logOutput, int logLevel)
 void static startPiLinkTask(void* params) { piLink.run(params); }
 
 // callback functions and callback table
-void ping_cb() { rxPing.handlePing(); }
+void bitMode_cb() { rxBITMode.handleBITMode(); }
+void clearOdom_cb() { rxClearOdom.handleClearOdom(); }
 void driveMotors_cb() { rxDriveMotorsRqst.handleDriveMotorsRqst(); }
 void logLevel_cb() { rxLogLevel.handleLogLevel(); }
+void ping_cb() { rxPing.handlePing(); }
 void reboot_cb() { rxReboot.handleReboot(); }
-void bitMode_cb() { rxBITMode.handleBITMode(); }
-const functionPtr callbackArr[] = { ping_cb, driveMotors_cb, logLevel_cb, reboot_cb, bitMode_cb };
+const functionPtr callbackArr[] = { ping_cb,
+                                    driveMotors_cb,
+                                    logLevel_cb,
+                                    reboot_cb,
+                                    bitMode_cb,
+                                    clearOdom_cb };
 
 // PiLink implementation
 PiLink::PiLink(HardwareSerial& linkSerial) 
