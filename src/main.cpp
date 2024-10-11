@@ -40,7 +40,7 @@ void setup()
 {
   bool isok = true;
 
-  //Serial.begin(115200);
+  Serial.begin(115200);
   delay(3000); // let serial start
 
   // initialize piLink
@@ -52,7 +52,7 @@ void setup()
   }
 
   vTaskDelay(1000);  // let comms task message handler get started
-
+  Serial.println("Finished setup in PiLinkTest");
 }
 
 
@@ -72,5 +72,8 @@ void loop()
   piLink.linkLog_.errorln("Error test log");
   vTaskDelay(500);
   piLink.linkLog_.fatalln("Fatal test log");
+
+  Serial.println("Finished loop() in PiLinkTest");
+
   delay(5000);
 }
